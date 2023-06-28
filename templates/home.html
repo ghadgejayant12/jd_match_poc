@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JD-Resume Mapping</title>
+    <style>
+    .main_container{
+    overflow: auto ;
+    text-align: center ;
+    background-color: #99d5ff ;
+    }
+
+    .input_div{
+    width: 40% ;
+    float: left ;
+    padding-botom: 10px ;
+    }
+
+    .result_div{
+    width: 60% ;
+    float: right ;
+    }
+    #job_desc{
+    width: 300px ;
+    height: 400px ;
+    padding: 10px ;
+    }
+    #res_path{
+    width: 40% ;
+    padding: 10px ;
+    }
+    .search_result{
+    overflow: auto;
+    box-shadow: 2px 2px 5px 5px #22608c;
+    border-radius:10px ;
+    background-color: #7fc4f5 ;
+    margin: 20px;
+    white-space: normal;
+    }
+    .match_percent{
+    float: left ;
+    width: 20%;
+    }
+    .match_data{
+    margin-top: 20px ;
+    float: right ;
+    width: 80%;
+    }
+    .result_name{
+    background-color: #d6eeff;
+    border-radius: 30px ;
+    }
+    #subm{
+    background-color: #d6eeff;
+    border-radius: 30px ;
+    margin-top: 20px ;
+    height: 50px ;
+    width: 100px ;
+    }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="main_container">
+    <br>
+<div class="input_div">
+    <form action="{{ url_for('home') }}" method="POST">
+        <label for="res_path">Path to Resume Folder : </label><br>
+        <input id='res_path' name="resume_path" type="text">
+        <br><br>
+        <label for="job_desc">Enter Job Description : </label><br>
+        <input id='job_desc' name="job_description" type="text"><br>
+        <input type="submit" name="submit" id="subm">
+    </form>
+</div>
+<div class="result_div">
+    {% if data %}
+        {% for r in result %}
+        <div class="search_result">
+            <div class="match_percent"><canvas class="result_match" id="chart_{{ r[3] }}" width="160" height="150"></canvas></div>
+            <div class="match_data"><button class="result_name"><b><a href="{{ url_for('download_view',filepath=r[1]) }}">{{ r[3] }}</b></a></button>
+            <p class="result_skills">{{ r[2] }}</p></div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+</div>
+</body>
+<script>
+    function makeChart(percent,canvas_id)
+    {
+        var ctx = document.getElementById(canvas_id).getContext('2d') ;
+        console.log(canvas_id) ;
+        var myChart = new Chart(canvas_id, {
+    type: 'doughnut',
+    data: {
+      labels: ['Matched '+percent+'%'],
+      datasets: [{
+        data: [percent,100-percent],
+        backgroundColor: ['#38FC6C', '#F4FA4B']
+      }]
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Similarity'
+      }
+    }
+  });
+    }
+  {% for r in result %}
+  makeChart({{ r[0] }}, "chart_{{ r[3] }}");
+  {% endfor %}
+</script>
+</html>
